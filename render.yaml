@@ -10,4 +10,6 @@ services:
       - key: TELEGRAM_CHAT_ID
         value: 1033208239
       - key: DAILY_BUDGET_SEK
-        value: 500
+        value: 10000
+      - key: RISK_MODE
+        value: demo
