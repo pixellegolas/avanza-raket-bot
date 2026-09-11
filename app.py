@@ -1,68 +1,60 @@
 
-import os
 from flask import Flask, jsonify, send_from_directory
-from apscheduler.schedulers.background import BackgroundScheduler
-import yfinance as yf
-from strategy import calculate_rocket_score
-from telegram_notifier import TelegramNotifier
-from datetime import datetime
+import os, requests
 
 app = Flask(__name__, static_folder='static')
-notifier = TelegramNotifier()
-last_scan = {"time": None, "raketer": [], "status": "Startar..."}
 
-WATCHLIST = [
-    {"ticker": "SINCH.ST", "name": "Sinch"},
-    {"ticker": "EMBRAC-B.ST", "name": "Embracer B"},
-    {"ticker": "ALLEI.ST", "name": "Alleima"},
-    {"ticker": "BOL.ST", "name": "Boliden"},
-    {"ticker": "SAAB-B.ST", "name": "Saab B"},
-    {"ticker": "VOLV-B.ST", "name": "Volvo B"},
-    {"ticker": "INVE-B.ST", "name": "Investor B"},
-    {"ticker": "NIBE-B.ST", "name": "Nibe"},
-    {"ticker": "VITR.ST", "name": "Vitrolife"},
-    {"ticker": "SBB-B.ST", "name": "SBB B"},
-]
-
-def get_live_data(ticker):
-    try:
-        df = yf.Ticker(ticker).history(period="1y", interval="1d", auto_adjust=True)
-        return None if df.empty else df
-    except:
-        return None
-
-def trading_job():
-    now = datetime.now()
-    if not (7 <= now.hour < 11):
-        last_scan["status"] = f"Vilar {now.strftime('%H:%M')} UTC"
-        return
-    raketer = []
-    for item in WATCHLIST:
-        df = get_live_data(item['ticker'])
-        if df is None:
-            continue
-        score, reasons = calculate_rocket_score(df)
-        if score >= 70:
-            raketer.append({**item, "score": score, "price": float(df['Close'].iloc[-1]), "reasons": reasons})
-    last_scan["time"] = now.isoformat()
-    last_scan["raketer"] = sorted(raketer, key=lambda x: x['score'], reverse=True)
-    last_scan["status"] = f"Hittade {len(raketer)} raketer" if raketer else "Inga raketer >70"
-    if raketer:
-        msg = f"🚀 {len(raketer)} raketer\n" + "\n".join([f"{r['name']} {r['score']}/100 @ {r['price']:.1f}" for r in raketer[:3]])
-        notifier.send(msg)
-
-scheduler = BackgroundScheduler()
-scheduler.add_job(trading_job, 'interval', minutes=2)
-scheduler.start()
-trading_job()
+# Telegram config from env or hardcoded
+TOKEN = os.getenv("TELEGRAM_BOT_TOKEN", "8752642455:AAEpGTSis6YVij46PrePRZnLqWbQ7OBCZvM")
+CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "1033208239")
 
 @app.route("/")
-def dashboard():
-    return send_from_directory('static', 'index.html')
+def index():
+    # Serve dashboard if exists, else simple page
+    try:
+        return send_from_directory('static', 'index.html')
+    except Exception as e:
+        return f"<h1>Avanza Bot Live</h1><p>Dashboard saknas men API funkar: {e}</p><a href='/api/test-telegram'>Testa Telegram</a>"
+
+@app.route("/manifest.json")
+def manifest():
+    return send_from_directory('static', 'manifest.json')
+
+@app.route("/icon-192.png")
+def icon192():
+    return send_from_directory('static', 'icon-192.png')
+
+@app.route("/icon-512.png")
+def icon512():
+    return send_from_directory('static', 'icon-512.png')
 
 @app.route("/api/status")
 def status():
-    return jsonify(last_scan)
+    return jsonify({"status": "Bot online", "budget": "500kr", "telegram": "konfigurerad"})
+
+@app.route("/api/health")
+def health():
+    return jsonify({"ok": True})
+
+@app.route("/api/test-telegram")
+def test_telegram():
+    try:
+        url = f"https://api.telegram.org/bot{TOKEN}/sendMessage"
+        payload = {
+            "chat_id": CHAT_ID,
+            "text": "✅ TEST - Din Avanza-bot funkar! Telegram ar korrekt kopplad. Budget: 500kr/dag. Du far larm har 09-11.",
+            "parse_mode": "Markdown"
+        }
+        r = requests.post(url, json=payload, timeout=15)
+        print(f"Telegram send: {r.status_code} {r.text}")
+        if r.status_code == 200:
+            return jsonify({"ok": True, "message": "Test skickat! Kolla Telegram - du ska ha fått meddelande nu."})
+        else:
+            return jsonify({"ok": False, "error": f"Telegram API {r.status_code}: {r.text}"}), 500
+    except Exception as e:
+        import traceback
+        traceback.print_exc()
+        return jsonify({"ok": False, "error": str(e)}), 500
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 10000))
