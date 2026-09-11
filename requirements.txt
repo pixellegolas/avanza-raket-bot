@@ -1,3 +1,6 @@
 flask
+yfinance
+pandas
 requests
+apscheduler
 gunicorn
