@@ -1,0 +1,8 @@
+flask
+yfinance
+pandas
+ta
+requests
+apscheduler
+gunicorn
+python-dotenv

@@ -1,0 +1,1 @@
+Se guide i chatten - inga bash-kommandon behövs
