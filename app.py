@@ -12,8 +12,8 @@ CHAT_ID = os.getenv("TELEGRAM_CHAT_ID", "1033208239")
 BUDGET = int(os.getenv("DAILY_BUDGET_SEK", "10000"))
 COURTAGE_TYPE = os.getenv("COURTAGE_TYPE", "mini")
 MAX_DAILY_LOSS = int(os.getenv("MAX_DAILY_LOSS_SEK", "500"))
-DATA_FILE = "/tmp/portfolio_BOT1_AKTIER_V4.json"
-NEWS_CACHE_FILE = "/tmp/news_cache_BOT1_AKTIER_V4.json"
+DATA_FILE = "/tmp/portfolio_aktieraket_polara.json"
+NEWS_CACHE_FILE = "/tmp/news_cache_aktieraket_polara.json"
 
 def calc_courtage(a, t="mini"):
     if t=="mini": return max(1, a*0.0025)
@@ -50,7 +50,7 @@ today = datetime.now().date().isoformat()
 if portfolio.get("last_reset") != today:
     portfolio["daily_pnl"]=0.0; portfolio["last_reset"]=today; save_portfolio(portfolio)
 
-last_scan = {"time": None, "raketer": [], "signaler": [], "status": "Startar...", "portfolio": portfolio, "budget": BUDGET, "max_daily_loss": MAX_DAILY_LOSS, "news": news_cache}
+last_scan = {"time": None, "raketer": [], "status": "Polara Edition V4 - snabb - fixad Laddar bug", "portfolio": portfolio, "budget": BUDGET, "max_daily_loss": MAX_DAILY_LOSS, "news": news_cache}
 
 WATCHLIST = [
     {"ticker": "SINCH.ST", "name": "Sinch"},
@@ -59,6 +59,7 @@ WATCHLIST = [
     {"ticker": "SAAB-B.ST", "name": "Saab B"},
     {"ticker": "VOLV-B.ST", "name": "Volvo B"},
     {"ticker": "INVE-B.ST", "name": "Investor B"},
+    {"ticker": "NIBE-B.ST", "name": "Nibe B"},
 ]
 
 def send_tg(m):
@@ -66,11 +67,11 @@ def send_tg(m):
     except: pass
 
 def fetch_news_fast():
-    """Hämtar nyheter snabbt i bakgrundstråd - blockerar inte /api/status"""
+    """Fixad - inga tomma '-' rader, filtrerar bort korta titlar, cachear"""
     global news_cache
     try:
         all_news = []
-        for item in WATCHLIST[:4]:  # Bara 4 första för snabbhet
+        for item in WATCHLIST[:4]:
             try:
                 t = yf.Ticker(item['ticker'])
                 raw = t.news
@@ -80,15 +81,17 @@ def fetch_news_fast():
                     if not title or len(title) < 15: continue
                     if any(title == x.get('title') for x in all_news): continue
                     tl = title.lower()
-                    sent = 'neutral'
-                    if any(w in tl for w in ['avtal','order','vinst','okar','hojer','forvarv']): sent='pos'
-                    if any(w in tl for w in ['forlust','sanker','nedgradering','varsel']): sent='neg'
+                    if any(w in tl for w in ['avtal','order','vinst','okar','hojer','forvarv','samarbete']): sent='pos'
+                    elif any(w in tl for w in ['forlust','sanker','nedgradering','varsel','konkurs']): sent='neg'
+                    else: sent='neutral'
                     ts = n.get('providerPublishTime')
                     if ts and (datetime.now().timestamp() - ts) > 7*24*3600: continue
                     all_news.append({"ticker": item['ticker'], "title": title[:100], "publisher": n.get('publisher',''), "sentiment": sent, "time": datetime.fromtimestamp(ts).strftime('%H:%M') if ts else '', "trump_related": 'trump' in tl})
                     if len(all_news) >= 8: break
-            except: continue
-        # Fallback olja/guld om svenska tomma
+            except Exception as e:
+                print(f"News err {item['ticker']}: {e}")
+                continue
+        # Fallback om svenska tomma
         if len(all_news) < 2:
             for t in ["USO", "GLD"]:
                 try:
@@ -138,16 +141,11 @@ def job(force=False):
     if portfolio.get("last_reset")!=today:
         portfolio["daily_pnl"]=0.0; portfolio["last_reset"]=today; save_portfolio(portfolio)
     if portfolio.get("daily_pnl",0) <= -MAX_DAILY_LOSS:
-        last_scan["status"]=f"STOPPAD Max forlust {portfolio['daily_pnl']:.0f}kr"
+        last_scan["status"]=f"STOPPAD Max forlust {portfolio['daily_pnl']:.0f}kr / -{MAX_DAILY_LOSS}kr"
         last_scan["portfolio"]=portfolio; return
-    if not force and "BOT1_AKTIER_V4"=="BOT1 AKTIER V3":
-        if not (7 <= now.hour < 11):
-            last_scan["status"]=f"Vilar {now.strftime('%H:%M')} UTC - Daily {portfolio.get('daily_pnl',0):.0f}kr - Helg normalt"
-            last_scan["portfolio"]=portfolio; return
-    if not force and "BOT1_AKTIER_V4"=="BOT2 OLJA GULD V3":
-        if not (12 <= now.hour < 21):
-            last_scan["status"]=f"Vilar {now.strftime('%H:%M')} UTC - aktiv 14-23 svensk - Daily {portfolio.get('daily_pnl',0):.0f}kr"
-            last_scan["portfolio"]=portfolio; return
+    if not force and not (7 <= now.hour < 11):
+        last_scan["status"]=f"Vilar {now.strftime('%H:%M')} UTC - Daily {portfolio.get('daily_pnl',0):.0f}kr - Helg normalt - Tryck Scan nu för att tvinga"
+        last_scan["portfolio"]=portfolio; return
     rak=[]
     for item in WATCHLIST:
         df=get_data(item['ticker'])
@@ -176,9 +174,8 @@ def job(force=False):
                     portfolio["win_rate_after"]=portfolio["wins_after"]/portfolio["total"]*100
                 portfolio["current"]+=tr["position"]+gross-cs; save_portfolio(portfolio)
     rak.sort(key=lambda x: x["score"], reverse=True)
-    last_scan["time"]=now.isoformat(); last_scan["raketer"]=rak; last_scan["signaler"]=rak; last_scan["portfolio"]=portfolio
-    last_scan["status"]=f"V4 SNABB {len(rak)} raketer P/L efter {portfolio['total_pnl_after']:.1f}kr Daily {portfolio.get('daily_pnl',0):.0f}kr - Status snabb, news i bakgrund"
-    # Hämta news i bakgrundstråd så status inte blockerar
+    last_scan["time"]=now.isoformat(); last_scan["raketer"]=rak; last_scan["portfolio"]=portfolio
+    last_scan["status"]=f"Polara V4 SNABB {len(rak)} raketer P/L efter {portfolio['total_pnl_after']:.1f}kr Daily {portfolio.get('daily_pnl',0):.0f}kr - Status snabb <1s, news i bakgrund"
     threading.Thread(target=fetch_news_fast, daemon=True).start()
 
 sched=BackgroundScheduler()
@@ -210,9 +207,15 @@ def ct():
         res.append({"amount": a, "one_way": c, "both": c*2, "pct": c*2/a*100})
     return jsonify({"type": COURTAGE_TYPE, "examples": res})
 @app.route("/api/test-telegram")
-def tt(): send_tg(f"V4 SNABB FIX - ingen mer Laddar... - P/L efter {portfolio['total_pnl_after']:.1f}kr"); return jsonify({"ok": True})
+def tt(): 
+    send_tg(f"Polara V4 SNABB - fixad Laddar bug - P/L efter {portfolio['total_pnl_after']:.1f}kr Daily {portfolio.get('daily_pnl',0):.0f}kr")
+    return jsonify({"ok": True})
 @app.route("/api/scan-now")
 def sn(): job(force=True); return jsonify(last_scan)
+@app.route("/api/reset-daily")
+def reset_daily(): 
+    portfolio["daily_pnl"]=0.0; portfolio["last_reset"]=datetime.now().date().isoformat(); save_portfolio(portfolio)
+    return jsonify({"ok": True})
 
 if __name__=="__main__":
     app.run(host="0.0.0.0", port=int(os.getenv("PORT",10000)))
