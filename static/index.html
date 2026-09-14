@@ -135,7 +135,13 @@ async function load(){
     document.getElementById('trades').innerHTML=p.trades && p.trades.length ? p.trades.slice(-6).reverse().map(t=>`<div style="padding:4px 0;border-bottom:1px solid var(--border)">${t.name} ${t.buy_price.toFixed(1)}→${t.sell_price?t.sell_price.toFixed(1):'?'} ${(t.pnl_after||0).toFixed(1)}kr ${t.sell_price?((t.pnl_after>0)?'✅':'❌'):''}</div>`).join('') : 'Inga trades än - väntar till måndag 09:15';
     // News
     if(s.news && s.news.length){
-      document.getElementById('news').innerHTML=s.news.map(n=>`<div class="news-item"><b>${n.ticker}</b>: ${n.title}<br><span class="muted">${n.publisher} - ${n.time}</span> <span style="background:${n.sentiment==='pos'?'var(--green)':n.sentiment==='neg'?'var(--red)':'var(--muted)'};color:#000;padding:2px 6px;border-radius:4px;font-size:10px;margin-left:6px">${n.sentiment}</span> ${n.trump_related?'<span style="background:var(--yellow);color:#000;padding:2px 6px;border-radius:4px;font-size:10px;margin-left:4px">Trump</span>':''}</div>`).join('');
+      
+    // FIXAD NEWS RENDERING - filtrera bort tomma
+    const filteredNews = (s.news||[]).filter(n=>n.title && n.title.length>10);
+    if(filteredNews.length===0){
+        document.getElementById('news').innerHTML='<span class="muted">Inga relevanta nyheter senaste 7 dagarna - Yahoo har dålig täckning för svenska aktier på helg. Försöker hämta olja/guld-nyheter istället...</span>';
+    } else {
+        document.getElementById('news').innerHTML=filteredNews.map(n=>`<div class="news-item"><b>${n.ticker}</b>: ${n.title}<br><span class="muted">${n.publisher} - ${n.time}</span> <span style="background:${n.sentiment==='pos'?'var(--green)':n.sentiment==='neg'?'var(--red)':'var(--muted)'};color:#000;padding:2px 6px;border-radius:4px;font-size:10px;margin-left:6px">${n.sentiment}</span> ${n.trump_related?'<span style="background:var(--yellow);color:#000;padding:2px 6px;border-radius:4px;font-size:10px;margin-left:4px">Trump</span>':''}</div>`).join('');
     } else {
       document.getElementById('news').innerHTML='<span class="muted">Inga nya nyheter senaste 24h - yfinance news tomt (helg)</span>';
     }
