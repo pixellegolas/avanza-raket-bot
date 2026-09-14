@@ -1,15 +1,1 @@
-services:
-  - type: web
-    name: avanza-raket-bot
-    env: python
-    buildCommand: pip install -r requirements.txt
-    startCommand: gunicorn app:app
-    envVars:
-      - key: TELEGRAM_BOT_TOKEN
-        value: 8752642455:AAEpGTSis6YVij46PrePRZnLqWbQ7OBCZvM
-      - key: TELEGRAM_CHAT_ID
-        value: 1033208239
-      - key: DAILY_BUDGET_SEK
-        value: 10000
-      - key: RISK_MODE
-        value: demo
+services:\n  - type: web\n    name: avanza-raket-bot\n    env: python\n    buildCommand: pip install -r requirements.txt\n    startCommand: gunicorn app:app\n    envVars:\n      - key: TELEGRAM_BOT_TOKEN\n        value: 8752642455:AAEpGTSis6YVij46PrePRZnLqWbQ7OBCZvM\n      - key: TELEGRAM_CHAT_ID\n        value: 1033208239\n      - key: DAILY_BUDGET_SEK\n        value: 10000\n      - key: COURTAGE_TYPE\n        value: mini\n      - key: MAX_DAILY_LOSS_SEK\n        value: 500\n
