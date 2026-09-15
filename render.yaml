@@ -4,14 +4,3 @@ services:
     env: python
     buildCommand: pip install -r requirements.txt
     startCommand: gunicorn app:app
-    envVars:
-      - key: TELEGRAM_BOT_TOKEN
-        value: 8752642455:AAEpGTSis6YVij46PrePRZnLqWbQ7OBCZvM
-      - key: TELEGRAM_CHAT_ID
-        value: 1033208239
-      - key: DAILY_BUDGET_SEK
-        value: 10000
-      - key: COURTAGE_TYPE
-        value: mini
-      - key: MAX_DAILY_LOSS_SEK
-        value: 500
