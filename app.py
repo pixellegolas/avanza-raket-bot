@@ -9,10 +9,21 @@ import requests
 
 app = Flask(__name__, static_folder='static')
 BUDGET=10000
-portfolio={"start":BUDGET,"current":BUDGET,"trades":[],"total_pnl_after":0,"win_rate_after":0,"total":0,"wins_after":0,"daily_pnl":0}
-last_scan={"budget":BUDGET,"max_daily_loss":500,"portfolio":portfolio,"raketer":[],"watchlist_prices":[],"status":"STEG1 Init","time":datetime.now().isoformat()}
+MAX_LOSS=500
+DATA_FILE="/tmp/portfolio_full_steg1.json"
+def load_portfolio():
+    try:
+        if os.path.exists(DATA_FILE):
+            with open(DATA_FILE,"r") as f: return json.load(f)
+    except: pass
+    return {"start":BUDGET,"current":BUDGET,"trades":[],"total_pnl":0,"total_pnl_after":0,"total_courtage":0,"win_rate_after":0,"total":0,"wins_after":0,"daily_pnl":0,"last_reset":datetime.now().date().isoformat()}
+def save_portfolio(p):
+    try:
+        with open(DATA_FILE,"w") as f: json.dump(p,f)
+    except: pass
 
-AVANZA_IDS={"SINCH.ST":5368,"EMBRAC-B.ST":1015165,"BOL.ST":1570,"SAAB-B.ST":5411,"VOLV-B.ST":853,"INVE-B.ST":1199,"NIBE-B.ST":2605}
+portfolio=load_portfolio()
+last_scan={"budget":BUDGET,"max_daily_loss":MAX_LOSS,"portfolio":portfolio,"raketer":[],"watchlist_prices":[],"status":"FULL POLARA STEG1 Init","time":datetime.now().isoformat(),"news":[]}
 WATCHLIST=[{"ticker":"SINCH.ST","name":"Sinch","avanza_id":5368},{"ticker":"EMBRAC-B.ST","name":"Embracer B","avanza_id":1015165},{"ticker":"BOL.ST","name":"Boliden","avanza_id":1570},{"ticker":"SAAB-B.ST","name":"Saab B","avanza_id":5411},{"ticker":"VOLV-B.ST","name":"Volvo B","avanza_id":853},{"ticker":"INVE-B.ST","name":"Investor B","avanza_id":1199},{"ticker":"NIBE-B.ST","name":"Nibe B","avanza_id":2605}]
 
 def get_avanza_owners(aid):
@@ -22,7 +33,8 @@ def get_avanza_owners(aid):
         if r.status_code==200:
             j=r.json()
             return int(j.get("numberOfOwners",0))
-    except: pass
+    except Exception as e:
+        print(f"Avanza {aid} err {e}")
     return 0
 
 def get_data(t):
@@ -44,10 +56,11 @@ def get_data(t):
             rs=gain/loss; rsi=100-(100/(1+rs)); rsi_val=float(rsi.iloc[-1]) if not pd.isna(rsi.iloc[-1]) else 50
             sma20=float(close.rolling(20).mean().iloc[-1]); sma50=float(close.rolling(50).mean().iloc[-1]) if len(close)>=50 else sma20
             return {"price":price,"change":change,"vol_ratio":vol_ratio,"rsi":rsi_val,"sma20":sma20,"sma50":sma50,"vwap":vwap,"price_vs_vwap":(price-vwap)/vwap*100,"atr":atr,"atr_pct":atr/price*100}
-    except Exception as e: print(e)
+    except Exception as e:
+        print(f"get_data {t} err {e}")
     return None
 
-def kelly(score, atr_pct, budget):
+def kelly_position(score, atr_pct, budget):
     base=budget*0.2
     score_f=max(0.5,min(1.5,(score-30)/40))
     atr_f=max(0.5,min(1.5,2.0/max(0.5,atr_pct)))
@@ -58,8 +71,10 @@ def score_steg1(d, owners):
     if not d: return 0,["Ingen data"],{}
     s=0; rs=[]
     if d["price"]>d["sma20"]: s+=20; rs.append("Over SMA20")
+    elif d["price"]>d["sma20"]*0.98: s+=8; rs.append("Nära SMA20")
     if d["sma20"]>d["sma50"]: s+=20; rs.append("SMA20>SMA50")
     if d["price"]>d["vwap"]: s+=20; rs.append(f"Over VWAP {d['price_vs_vwap']:+.1f}%")
+    elif d["price_vs_vwap"]>-0.5: s+=5; rs.append(f"Nära VWAP {d['price_vs_vwap']:+.1f}%")
     if 30<d["rsi"]<70: s+=15; rs.append(f"RSI {d['rsi']:.0f}")
     if d["vol_ratio"]>1: s+=10; rs.append(f"Vol {d['vol_ratio']:.1f}x")
     if d["change"]>0: s+=10; rs.append(f"{d['change']:+.1f}%")
@@ -74,17 +89,19 @@ def job(force=False):
         d=get_data(item["ticker"])
         owners=get_avanza_owners(item["avanza_id"])
         if not d:
-            watch.append({**item,"price":0,"score":0,"reasons":["Ingen data"],"owners":owners}); continue
+            watch.append({**item,"price":0,"change":0,"score":0,"reasons":["Ingen data"],"owners":owners,"status":"no_data"})
+            continue
         sc,rs,det=score_steg1(d, owners)
-        pos=kelly(sc, d["atr_pct"], BUDGET)
-        watch.append({**item,"price":d["price"],"change":d["change"],"score":sc,"reasons":rs,"owners":owners,"vwap":d["vwap"],"atr":d["atr"],"atr_pct":d["atr_pct"],"position_size":pos})
+        pos=kelly_position(sc, d["atr_pct"], BUDGET)
+        watch.append({**item,"price":d["price"],"change":d["change"],"score":sc,"reasons":rs,"owners":owners,"vwap":d["vwap"],"price_vs_vwap":d["price_vs_vwap"],"atr":d["atr"],"atr_pct":d["atr_pct"],"position_size":pos,"rsi":d["rsi"],"status":"ok"})
         if sc>=50:
             stop=d["price"]-d["atr"]*1.5
             take=d["price"]+d["atr"]*2.5
-            rak.append({**item,"score":sc,"price":d["price"],"reasons":rs,"change":d["change"],"vwap":d["vwap"],"stop_loss":stop,"take_profit":take,"position_size":pos,"owners":owners})
+            rak.append({**item,"score":sc,"price":d["price"],"reasons":rs,"change":d["change"],"vwap":d["vwap"],"atr":d["atr"],"stop_loss":stop,"take_profit":take,"position_size":pos,"owners":owners})
     rak.sort(key=lambda x:x["score"], reverse=True)
-    last_scan["time"]=now.isoformat(); last_scan["raketer"]=rak; last_scan["watchlist_prices"]=watch
-    last_scan["status"]=f"STEG1 VWAP+ATR+Kelly+Avanza {len(rak)} raketer - {now.strftime('%H:%M:%S')} - Kelly sizing aktiv"
+    last_scan["time"]=now.isoformat(); last_scan["raketer"]=rak; last_scan["watchlist_prices"]=watch; last_scan["portfolio"]=portfolio
+    last_scan["status"]=f"FULL POLARA STEG1 {len(rak)} raketer - {now.strftime('%H:%M:%S')} - {len([w for w in watch if w['price']>0])}/{len(WATCHLIST)} priser OK - VWAP+ATR+Kelly"
+    print(last_scan["status"])
 
 sched=BackgroundScheduler(); sched.add_job(lambda: job(force=False), 'interval', minutes=5); sched.start(); job(force=True)
 
@@ -92,7 +109,11 @@ sched=BackgroundScheduler(); sched.add_job(lambda: job(force=False), 'interval',
 def idx(): return send_from_directory('static','index.html')
 @app.route("/api/status")
 def st(): return jsonify(last_scan)
+@app.route("/api/portfolio")
+def pf(): return jsonify(portfolio)
 @app.route("/api/scan-now")
 def sn(): job(force=True); return jsonify(last_scan)
+@app.route("/api/test-telegram")
+def tt(): return jsonify({"ok":True})
 
 if __name__=="__main__": app.run(host="0.0.0.0", port=int(os.getenv("PORT",10000)))
