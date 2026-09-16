@@ -1,6 +1,1 @@
-flask
-yfinance
-pandas
-requests
-apscheduler
-gunicorn
+flask\nyfinance\pandas\requests\apscheduler\gunicorn\n

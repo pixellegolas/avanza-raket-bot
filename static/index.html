@@ -1,97 +1,209 @@
-<!DOCTYPE html><html><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1"><title>ULTIMATE ALLA KÄLLOR</title>
+<!DOCTYPE html>
+<html lang="sv"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1">
+<title>AVANZA RAKET BOT • POLARA</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@700;900&family=JetBrains+Mono:wght@400;700&family=Inter:wght@400;700;800;900&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#fdfbf7;--card:#fff;--border:#efe9e0;--text:#1a1a1a;--muted:#9a9a9a;--orange:#ff4d00;--green:#00c853;--red:#c0392b;--blue:#1565c0;--purple:#6a1b9a}
-body{background:var(--bg);color:var(--text);font-family:Inter,sans-serif;margin:0;padding-bottom:80px}
-.banner{background:#111;color:#fff;text-align:center;padding:10px;font-size:11px;font-weight:800;letter-spacing:0.05em}
-.top{padding:20px 24px;border-bottom:1px solid var(--border)}
-.top h1{font-family:Playfair Display,serif;font-size:44px;margin:0}
-.kpi{display:grid;grid-template-columns:repeat(5,1fr);gap:10px;padding:12px}
-.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:20px;padding:14px;text-align:center}
-.card{background:var(--card);border:1px solid var(--border);border-radius:24px;padding:18px;margin:12px}
-.muted{color:var(--muted);font-size:11px}
-.btn{padding:12px 18px;border-radius:999px;border:none;font-weight:800;font-size:11px;cursor:pointer}
-.tag{display:inline-block;padding:2px 8px;border-radius:999px;font-size:10px;font-weight:800;margin:2px}
-.tag-fi{background:#f3e5f5;color:var(--purple)} .tag-news{background:#e3f2fd;color:var(--blue)} .tag-blank{background:#fff3e0;color:#ef6c00} .tag-avanza{background:#e8f5e9;color:#2e7d32} .tag-tech{background:#faf6f0;color:var(--muted)}
-.main{display:grid;grid-template-columns:1.3fr 0.7fr;gap:12px;padding:0 12px}
-.source-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;font-size:10px}
-.source-item{background:#faf6f0;border-radius:12px;padding:8px}
-@media(max-width:1000px){.main{grid-template-columns:1fr}.kpi{grid-template-columns:1fr 1fr}}
+:root{--bg:#fdfbf7;--card:#fff;--border:#e8e0d3;--border2:#f0e6d3;--text:#1a1a1a;--muted:#9a8a7a;--muted2:#b8ada0;--orange:#ff4d00;--green:#00c853;--red:#a33;--red2:#c0392b}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,sans-serif;letter-spacing:-0.01em}
+.mono{font-family:JetBrains Mono,monospace}
+.top-bar{display:flex;justify-content:space-between;padding:10px 24px;font-size:10px;letter-spacing:0.12em;color:var(--muted);border-bottom:1px solid var(--border)}
+.top-bar .right{opacity:0.7}
+.hero{padding:28px 24px 18px 24px;border-bottom:1px solid var(--border)}
+.hero h1{font-family:Playfair Display,serif;font-size:64px;font-weight:900;letter-spacing:-0.03em;margin:0;line-height:0.9}
+.hero .sub{margin-top:14px;font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted);line-height:1.6;max-width:600px}
+.hero .sub .dot{display:inline-block;width:6px;height:6px;background:var(--green);border-radius:50%;margin-right:4px;vertical-align:middle}
+.banner{display:flex;justify-content:space-between;align-items:center;margin:14px 24px;background:#f7f0e3;border:1px solid var(--border2);border-radius:2px;padding:8px 14px;font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:0.08em}
+.banner .left{color:var(--text);font-weight:700}
+.banner .right{color:var(--muted);font-size:9px}
+.kpi{display:grid;grid-template-columns:repeat(4,1fr);gap:12px;padding:0 24px;margin:18px 0}
+.kpi-card{background:var(--card);border:1px solid var(--border);border-radius:2px;padding:18px 16px}
+.kpi-card .label{font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase}
+.kpi-card .value{font-family:Playfair Display,serif;font-size:28px;font-weight:900;margin-top:8px;letter-spacing:-0.02em}
+.kpi-card .value.red{color:var(--red2)}
+.kpi-card .foot{font-family:JetBrains Mono,monospace;font-size:10px;color:var(--muted);margin-top:4px}
+.grid{display:grid;grid-template-columns:1.35fr 0.65fr;gap:12px;padding:0 24px}
+.card{background:var(--card);border:1px solid var(--border);border-radius:2px}
+.card .head{display:flex;justify-content:space-between;align-items:center;padding:12px 16px;border-bottom:1px solid var(--border);font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:0.12em;color:var(--muted);text-transform:uppercase}
+.card .body{padding:16px}
+.btn{display:inline-block;padding:10px 18px;border-radius:2px;border:1px solid var(--border);background:var(--card);font-family:JetBrains Mono,monospace;font-size:11px;letter-spacing:0.08em;font-weight:700;cursor:pointer;text-transform:uppercase}
+.btn-black{background:#111;color:#fff;border-color:#111}
+.btn:hover{opacity:0.9}
+.table{width:100%;border-collapse:collapse}
+.table th{font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:0.08em;color:var(--muted);text-align:left;padding:10px 12px;border-bottom:1px solid var(--border);text-transform:uppercase;font-weight:400}
+.table td{padding:12px;font-size:13px;border-bottom:1px solid #f5f0e8}
+.table td .mono{font-size:11px}
+.status-pill{display:inline-block;padding:3px 10px;border-radius:999px;border:1px solid var(--border);font-family:JetBrains Mono,monospace;font-size:10px;letter-spacing:0.05em;color:var(--muted)}
+.score-orange{background:var(--orange);color:#fff!important;border-color:var(--orange);font-weight:800}
+.news-box{border:1px dashed var(--border);border-radius:2px;padding:18px;text-align:center;font-family:JetBrains Mono,monospace;font-size:11px;color:var(--muted);line-height:1.6}
+.fi-tag{display:inline-block;padding:2px 7px;border-radius:999px;font-family:JetBrains Mono,monospace;font-size:9px;font-weight:800;margin-right:4px}
+.fi-buy{background:#f3e5f5;color:#6a1b9a} .fi-buy2{background:#e8f5e9;color:#2e7d32} .fi-sell{background:#fdecea;color:var(--red2)} .news-tag{background:#e3f2fd;color:#1565c0} .blank-tag{background:#fff3e0;color:#ef6c00}
+@media(max-width:900px){.grid{grid-template-columns:1fr}.kpi{grid-template-columns:1fr 1fr}.hero h1{font-size:40px}}
 </style>
 </head><body>
-<div class="banner">ULTIMATE • ALLA KÄLLOR • VWAP + ATR + Kelly + NYHETER + FI INSIDER + FI BLANKNING + AVANZA ÄGARE + ANALYST • Budget 10000kr</div>
-<div class="top"><div style="font-size:11px;color:var(--muted)">AVANZA RAKET BOT • POLARA ULTIMATE • ALLA KÄLLOR</div><h1>Aktieraket Bot</h1><div class="muted">Letar morgonraketer • LIVE SIM • FLAT • ALLA KÄLLOR I KALKYL • Max chans</div><div class="muted" id="statusText">Laddar ultimate...</div></div>
+<div class="top-bar"><div class="mono">AVANZA RAKET BOT • POLARA &nbsp;&nbsp;|&nbsp;&nbsp; SYSTEM • AKTIER • 09:00-11:00 CET • SE</div><div class="mono right" id="topRight">v5.0 • ULTIMATE • 7 KÄLLOR • READ ONLY • <span id="statusText">Laddar...</span></div></div>
+
+<div class="hero">
+<h1>Aktieraket Bot</h1>
+<div class="sub"><span class="dot"></span>LIVE SIM • FLAT • NO GLOSSY • 7 KÄLLOR I KALKYL<br>Letar efter morgonraketer på svenska aktier. Ingen hävstång, ingen krypto. Bara öppningsmomentum 09:00-11:00 + FI insider + blankning + nyheter.</div>
+</div>
+
+<div class="banner"><div class="left mono">⚡ POLARA EDITION • ULTIMATE V5 • Budget 10000kr • Courtage + Max förlust + Riktiga nyheter + FI + Blankning + Avanza + Analyst • <span id="bannerStats">3 raketer • 0 nyheter • 0 FI • 0 blank • 7 källor</span></div><div class="right mono">PAPPER • EJ RIKTIG HANDEL • ULTIMATE LIVE</div></div>
 
 <div class="kpi">
-<div class="kpi-card"><div class="muted">BUDGET</div><div style="font-size:22px;font-weight:900" id="budgetNum">10000 kr</div></div>
-<div class="kpi-card"><div class="muted">RAKETER</div><div style="font-size:22px;font-weight:900" id="raketNum">0 st</div></div>
-<div class="kpi-card"><div class="muted">FI INSIDER</div><div style="font-size:18px;font-weight:900" id="fiNum">0 • +25p</div></div>
-<div class="kpi-card"><div class="muted">BLANKNING</div><div style="font-size:18px;font-weight:900" id="blankNum">0 • ±10p</div></div>
-<div class="kpi-card"><div class="muted">KÄLLOR</div><div style="font-size:14px;font-weight:900">7 st aktiva</div></div>
+<div class="kpi-card"><div class="label">BUDGET</div><div class="value" id="budgetNum">10000 kr</div><div class="foot mono">Startkapital • Demo</div></div>
+<div class="kpi-card"><div class="label">P/L EFTER COURTAGE</div><div class="value" id="plNum">0 kr</div><div class="foot mono" id="tradesToday">0 trades idag</div></div>
+<div class="kpi-card"><div class="label">WIN RATE</div><div class="value" id="wrNum">0%</div><div class="foot mono" id="wrDetail">0 / 0 trades</div></div>
+<div class="kpi-card"><div class="label">DAILY / MAX</div><div class="value red" id="dailyNum">0 / -500 kr</div><div class="foot mono">Stop: -500 kr / dag</div></div>
 </div>
 
-<div class="card"><h3 style="font-size:11px;margin:0">KÄLLOR • ALLA AKTIVA • ULTIMATE</h3><div class="source-grid" style="margin-top:10px">
-<div class="source-item"><b>1. Yahoo Pris</b> • SMA20/50, RSI, Volym, Change<br><span class="tag tag-tech">+20+20+15+10+10</span> VWAP, ATR</div>
-<div class="source-item"><b>2. Yahoo News</b> • Cision, MFN, PM, order<br><span class="tag tag-news">+15/+10/-20</span> Nyheter</div>
-<div class="source-item"><b>3. FI Insider</b> • VD/Styrelse köp/sälj • marknadssok.fi.se<br><span class="tag tag-fi">+25 VD / +20 Styrelse / -20 Sälj</span></div>
-<div class="source-item"><b>4. FI Blankning</b> • Short % upp/ner • FI blankningsregister<br><span class="tag tag-blank">-10 om short ↑ / +10 om short ↓</span></div>
-<div class="source-item"><b>5. Avanza Ägare</b> • Antal ägare trend • avanza.se<br><span class="tag tag-avanza">+5 om ägare ↑</span></div>
-<div class="source-item"><b>6. Analyst Rek</b> • Köp/Sälj rek • Yahoo recommendations<br><span class="tag tag-tech">+10 om Buy</span></div>
-</div><div class="muted" style="margin-top:8px;font-size:10px">Total max 100p per aktie • Alla källor cachade 5min • /api/ping = 0 anrop</div></div>
+<div class="grid">
+<div>
+<div class="card"><div class="head"><div>PRESTANDA IDAG</div><div class="mono" id="perfHead">DYNAMISK • FIXAD BUGG • 0/0/0% • 7 KÄLLOR</div></div><div class="body" style="display:grid;grid-template-columns:1fr 1fr;gap:20px">
+<div><div class="mono" style="font-size:10px;color:var(--muted)">Resultat</div><div style="margin-top:12px"><div style="font-family:Playfair Display,serif;font-size:32px;font-weight:900"><span id="perfWins">0</span> <span style="font-size:14px;font-family:Inter;font-weight:400;color:var(--muted)">vinster</span></div><div style="font-family:Playfair Display,serif;font-size:32px;font-weight:900;color:#c9b8a0"><span id="perfLosses">0</span> <span style="font-size:14px;font-family:Inter;font-weight:400;color:var(--muted)">förluster</span></div></div></div>
+<div><div class="mono" style="font-size:10px;color:var(--muted)">Träff & SEK</div><div style="font-family:Playfair Display,serif;font-size:48px;font-weight:900;margin-top:4px" id="perfHit">0%</div><div class="mono" style="font-size:10px;color:var(--muted)">träff</div><div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px"><span id="perfPL" style="background:var(--orange);color:#fff;padding:4px 10px;border-radius:999px;font-family:JetBrains Mono,monospace;font-size:11px">+0 SEK</span> <span class="mono" style="font-size:10px;color:var(--muted)">efter courtage</span></div></div>
+</div><div style="background:#f7f0e3;border-top:1px solid var(--border2);padding:10px 16px;font-family:JetBrains Mono,monospace;font-size:10px;color:var(--muted)"><span id="chosenRocket">-</span><br><span id="nextEntryText">Väntar på FI + nyheter + VWAP</span></div><div style="background:#f7f0e3;border-top:1px solid var(--border2);padding:8px 16px;font-family:JetBrains Mono,monospace;font-size:9px;color:var(--muted)">● Inga avslut ännu idag • Visar 0 tills första trade • 7 källor: VWAP+ATR+Kelly+Nyheter+FI+Blankning+Avanza</div></div>
 
-<div class="main">
-<div>
-<div class="card"><div style="display:flex;justify-content:space-between"><h3 style="font-size:11px;margin:0">RAKETER JUST NU • ULTIMATE 7 KÄLLOR</h3><span class="muted">09:00-11:00</span></div><div id="raketer" style="margin-top:10px">Laddar ultimate...</div></div>
-<div class="card"><div style="display:flex;justify-content:space-between"><h3 style="font-size:11px;margin:0">WATCHLIST • ALLA KÄLLOR</h3><span class="muted" id="watchInfo">7 st</span></div><div id="watchlist" style="margin-top:8px">Laddar...</div></div>
+<div class="card" style="margin-top:12px"><div class="head"><div>RAKETER JUST NU • ULTIMATE 7 KÄLLOR</div><div class="mono">09:00-11:00 • <span id="raketCount">0 raketer</span></div></div><div class="body" id="raketer"><div class="mono" style="text-align:center;padding:30px;color:var(--muted)">Inga raketer just nu<br>(normalt utanför 09-11)<br><br><span style="font-size:9px">Scannar Sinch, Embracer B, Boliden, Saab B, Volvo B, Investor B, Nibe<br>Filter: VWAP+ATR+Kelly+Nyheter+FI+Blankning+Avanza • Score ≥50</span></div></div><div style="background:#f7f0e3;border-top:1px solid var(--border2);padding:8px 16px;font-family:JetBrains Mono,monospace;font-size:9px;color:var(--muted)">FILTER: Volym >150% • Change >1.2% • Spread <0.4% • VWAP över • ATR stop • Nyheter +15 • FI +25 • Blankning ±10 • Avanza +5</div></div>
+
+<div class="card" style="margin-top:12px"><div class="head"><div>WATCHLIST • AKTIER • ULTIMATE 7 KÄLLOR</div><div class="mono" id="watchInfo">7 st • Avanza • 7 källor</div></div><table class="table"><thead><tr><th>Aktie</th><th>Pris</th><th>Idag</th><th>Volym</th><th>Status</th></tr></thead><tbody id="watchlistBody"><tr><td colspan="5" class="mono" style="text-align:center;padding:20px">Laddar...</td></tr></tbody></table></div>
 </div>
+
 <div>
-<div class="card"><div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn" style="background:#111;color:#fff" id="scanBtn">STARTA SCAN ULTIMATE</button><button class="btn" style="background:#fff;border:1px solid var(--border)" id="pingBtn">PING lätt</button></div><div class="muted" style="margin-top:8px;font-size:10px">PING 0 anrop • SCAN 7 Yahoo + News + FI + Blankning + Avanza + Analyst • 1 anrop per källa, cache 5min</div></div>
-<div class="card"><h3 style="font-size:11px;margin:0">FI INSIDER • +25p STARKAST</h3><div id="fiList" style="margin-top:8px">Laddar FI...</div></div>
-<div class="card"><h3 style="font-size:11px;margin:0">FI BLANKNING • ±10p</h3><div class="muted" style="font-size:10px">Short % minskar = bra, ökar = dåligt • Källa: FI blankningsregister</div><div id="blankList" style="margin-top:8px">Laddar blankning...</div></div>
-<div class="card"><h3 style="font-size:11px;margin:0">NYHETER + AVANZA + ANALYST</h3><div id="newsList" style="margin-top:8px">Laddar...</div></div>
+<div class="card"><div class="head"><div>KONTROLLER • FLAT • ULTIMATE</div></div><div class="body">
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><button class="btn btn-black" id="scanBtn">STARTA SCAN ULTIMATE</button><button class="btn" id="pingBtn">PING LÄTT</button></div>
+<button class="btn" style="width:100%;margin-top:8px" id="resetBtn">ÅTERSTÄLL DAG • NOLLA P/L</button>
+<div style="margin-top:14px;border-top:1px solid var(--border);padding-top:10px" class="mono">
+<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Budget</span><span id="ctrlBudget">10000 kr</span></div>
+<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Courtage</span><span>99 kr min</span></div>
+<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Max förlust</span><span>-500 kr / dag</span></div>
+<div style="display:flex;justify-content:space-between;padding:4px 0"><span>FI insider</span><span id="ctrlFi">0 st • +25p</span></div>
+<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Blankning</span><span id="ctrlBlank">0 st • ±10p</span></div>
+<div style="display:flex;justify-content:space-between;padding:4px 0"><span>Källor</span><span>7 st aktiva</span></div>
+</div>
+<div style="margin-top:10px;font-size:9px" class="mono">PING 0 anrop • SCAN 7 Yahoo + News + FI + Blankning + Avanza + Analyst • 1 anrop/källa • cache 5min</div>
+</div></div>
+
+<div class="card" style="margin-top:12px"><div class="head"><div>RIKTIGA NYHETER • ULTIMATE 7 KÄLLOR</div><div class="mono" id="newsHead">7 DAGAR • <span id="newsCount">0</span></div></div><div class="body" id="newsList"><div class="news-box">Inga relevanta nyheter senaste 7 dagarna<br><span style="font-size:9px">Visar endast nyheter som triggar raket-filter: insider, PM, storägare, FI +25p, blankning ±10p. Inga 12 neutrala rader.</span></div></div><div style="padding:10px 16px" class="mono"><div style="font-size:9px">● Källor: Yahoo News, Cision, MFN, Avanza, FI • marknadssok.fi.se<br>● Filter: Boliden, Saab B, Volvo B, etc. • FI +25p, Nyheter +15p, Blankning ±10p, Avanza +5p<br>● Score ≥50 = raket</div></div><div style="background:#f7f0e3;border-top:1px solid var(--border2);padding:8px 16px;font-family:JetBrains Mono,monospace;font-size:9px;color:var(--muted)">Senast koll: <span id="newsTime">just nu</span> • Demo • 7 källor • <span id="fiTime">FI 0 st</span></div></div>
+
+<div class="card" style="margin-top:12px"><div class="head"><div>NOTIS • POLARA ULTIMATE</div></div><div class="body mono" style="font-size:10px;line-height:1.7;color:var(--muted)">Detta är en visuell replika av Polara Style Dashboard – exakt samma bredd, färger, fonter, kort, hairline, radius och spacing. Inga glossy knappar. Endast flat matte. Budget 10000 kr, courtage inräknat, max förlust -500 kr. ULTIMATE: 7 källor i kalkyl – VWAP + ATR + Kelly + Nyheter +15 + FI insider +25 + Blankning ±10 + Avanza +5 + Analyst +10. Total max 100p per aktie. Alla källor cachade 5min, /api/ping = 0 anrop.<br><br>Inter • JetBrains Mono • Playfair Display • Polara Edition • Flat • No Glossy • 7 källor aktiva</div></div>
 </div>
 </div>
 
 <script>
-async function load(){
- try{
-  const s=await fetch('/api/status').then(r=>r.json());
-  document.getElementById('statusText').innerText=s.status||'OK';
-  document.getElementById('budgetNum').innerText=(s.budget||10000)+' kr';
-  document.getElementById('raketNum').innerText=(s.raketer||[]).length+' st';
-  document.getElementById('fiNum').innerText=(s.fi_count||0)+' • +25p';
-  document.getElementById('blankNum').innerText=(s.blank_count||0)+' • ±10p';
-  
-  const wl=s.watchlist_prices||[];
-  document.getElementById('watchInfo').innerText=wl.filter(w=>w.price>0).length+'/'+wl.length+' • '+ (s.news_count||0)+' nyheter • '+ (s.fi_count||0)+' FI • '+ (s.blank_count||0)+' blank';
-  document.getElementById('watchlist').innerHTML=wl.map(w=>{
-   const tags=[];
-   if(w.fi_score) tags.push(`<span class="tag tag-fi">FI ${w.fi_score>0?'+'+w.fi_score:w.fi_score} ${w.fi_role||''}</span>`);
-   if(w.news_score) tags.push(`<span class="tag tag-news">📰 ${w.news_score>0?'+'+w.news_score:w.news_score}</span>`);
-   if(w.blank_score) tags.push(`<span class="tag tag-blank">Short ${w.blank_score>0?'+'+w.blank_score:w.blank_score}</span>`);
-   if(w.owners_trend) tags.push(`<span class="tag tag-avanza">Avanza ${w.owners_trend}</span>`);
-   if(w.analyst_score) tags.push(`<span class="tag tag-tech">Analyst +${w.analyst_score}</span>`);
-   return `<div style="padding:12px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between"><b>${w.name}</b><span style="background:${w.score>=60?'var(--orange)':'#faf6f0'};color:${w.score>=60?'#fff':'var(--muted)'};padding:4px 10px;border-radius:999px;font-weight:800">${w.score}</span></div><div style="margin:4px 0">${tags.join(' ')}</div><div class="muted" style="font-size:10px">${w.price>0?w.price.toFixed(2)+' kr':''} ${w.change? (w.change>=0?'+':'')+w.change.toFixed(1)+'%':''} • VWAP ${w.vwap?w.vwap.toFixed(2):'-'} • ATR ${w.atr_pct?w.atr_pct.toFixed(1)+'%':''} ${w.fi_title? '• '+w.fi_title.substring(0,25):''} ${w.blank_title? '• '+w.blank_title:''}</div><div class="muted" style="font-size:10px;margin-top:2px">${w.reasons.join(' • ')}</div></div>`;
-  }).join('');
-  
-  const rak=s.raketer||[];
-  document.getElementById('raketer').innerHTML=rak.length? rak.map(r=>{
-   const allTags=[];
-   if(r.fi_score) allTags.push(`FI ${r.fi_role} ${r.fi_score>0? 'köper +'+r.fi_score:'säljer '+r.fi_score} ${r.fi_amount? (r.fi_amount/1000000).toFixed(1)+'M':''}`);
-   if(r.blank_score) allTags.push(`Blankning ${r.blank_score>0?'+'+r.blank_score:r.blank_score}`);
-   if(r.news_score) allTags.push(`Nyhet +${r.news_score}`);
-   return `<div style="padding:12px 0;border-bottom:1px solid var(--border)"><b>${r.name}</b> <span style="background:var(--orange);color:#fff;padding:3px 10px;border-radius:999px;font-size:11px">${r.score}/100</span> @ ${r.price.toFixed(2)} • Stop ${r.stop_loss?r.stop_loss.toFixed(2):''} • Kelly ${(r.position_size/1000).toFixed(1)}k<br><span style="font-size:11px">${allTags.join(' • ')}</span>${r.fi_title? `<br><span style="font-size:11px;background:#f3e5f5;padding:2px 6px;border-radius:6px">💼 ${r.fi_title}</span>`:''}${r.news_title? `<br><span style="font-size:11px;background:#e3f2fd;padding:2px 6px;border-radius:6px">📰 ${r.news_title}</span>`:''}<br><span class="muted" style="font-size:11px">${r.reasons.join(', ')}</span></div>`;
-  }).join('') : '<div class="muted" style="text-align:center;padding:20px">Inga raketer - väntar alla 7 källor<br>FI +25 är starkast, blankning +10, nyheter +15</div>';
-  
-  document.getElementById('fiList').innerHTML=(s.fi_insider||[]).length? s.fi_insider.map(f=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);font-size:11px"><span style="background:${f.type==='BUY'?'#e8f5e9':'#fdecea'};color:${f.type==='BUY'?'#2e7d32':'#c0392b'};padding:2px 8px;border-radius:999px;font-weight:800">${f.type==='BUY'? 'KÖP +'+f.score:'SÄLJ '+f.score} • ${f.role}</span> <b>${f.issuer}</b> ${f.name}<br><span class="muted">${f.quantity} st @ ${f.price}kr = ${(f.total/1000000).toFixed(2)}M • ${f.date}</span></div>`).join('') : '<div class="muted">Inga FI senaste 7 dagarna</div>';
-  
-  document.getElementById('blankList').innerHTML=(s.blank_positions||[]).length? s.blank_positions.map(b=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:11px"><b>${b.issuer}</b> ${b.short_percent}% short • ${b.change>0? '↑ +'+b.change.toFixed(2)+'% (dåligt)':'↓ '+b.change.toFixed(2)+'% (bra)'} • ${b.score>0? '+'+b.score:b.score}p<br><span class="muted">${b.date} • ${b.holder||''}</span></div>`).join('') : '<div class="muted">Inga blankning ändringar • +10 om short minskar</div>';
-  
-  document.getElementById('newsList').innerHTML=[...(s.news||[]).slice(0,3).map(n=>`<div style="padding:6px 0;border-bottom:1px solid var(--border);font-size:11px"><span class="tag tag-news">+${n.score}</span><b>${n.ticker}</b> ${n.title}</div>`).join(''), ...((s.avanza_owners||[]).map(a=>`<div style="padding:6px 0;font-size:11px"><span class="tag tag-avanza">+${a.score||5}</span><b>${a.name}</b> ${a.owners} ägare ${a.trend>0? '↑':'→'}</div>`).join(''))].join('') || '<div class="muted">Inga nyheter/ägare</div>';
-  
- }catch(e){document.getElementById('statusText').innerText='Fel: '+e.message;}
+async function loadPolaraUltimate(){
+  try{
+    const s=await fetch('/api/status').then(r=>r.json());
+    document.getElementById('statusText').innerText=s.status||'OK';
+    document.getElementById('bannerStats').innerText=`${(s.raketer||[]).length} raketer • ${s.news_count||0} nyheter • ${s.fi_count||0} FI • ${s.blank_count||0} blank • 7 källor • ${s.time? new Date(s.time).toLocaleTimeString('sv-SE'):''}`;
+    
+    const p=s.portfolio||{};
+    document.getElementById('budgetNum').innerText=(s.budget||10000)+' kr';
+    document.getElementById('ctrlBudget').innerText=(s.budget||10000)+' kr';
+    document.getElementById('plNum').innerText=(p.total_pnl_after||0).toFixed(0)+' kr';
+    document.getElementById('tradesToday').innerText=(p.total||0)+' trades idag';
+    document.getElementById('wrNum').innerText=(p.win_rate_after||0).toFixed(0)+'%';
+    document.getElementById('wrDetail').innerText=(p.wins_after||0)+' / '+(p.total||0)+' trades';
+    document.getElementById('dailyNum').innerText=(p.daily_pnl||0).toFixed(0)+' / -'+(s.max_daily_loss||500)+' kr';
+    document.getElementById('perfWins').innerText=p.wins_after||0;
+    document.getElementById('perfLosses').innerText=(p.total||0)-(p.wins_after||0);
+    const hit=p.total>0?Math.round((p.wins_after/p.total)*100):0;
+    document.getElementById('perfHit').innerText=hit+'%';
+    document.getElementById('perfPL').innerText=((p.daily_pnl||0)>=0?'+':'')+(p.daily_pnl||0).toFixed(0)+' SEK';
+    document.getElementById('perfHead').innerText=`DYNAMISK • 7 KÄLLOR • ${p.wins_after||0}/${(p.total||0)-(p.wins_after||0)}/${hit}%`;
+    
+    document.getElementById('ctrlFi').innerText=(s.fi_count||0)+' st • +25p';
+    document.getElementById('ctrlBlank').innerText=(s.blank_count||0)+' st • ±10p';
+    
+    const wl=s.watchlist_prices||[];
+    const tbody=document.getElementById('watchlistBody');
+    if(tbody){
+      tbody.innerHTML=wl.map((w,i)=>{
+        const num=String(i+1).padStart(2,'0');
+        const price=w.price>0? w.price.toFixed(2)+' kr':'-';
+        const change=w.change? `${w.change>=0?'+':''}${w.change.toFixed(2)}%`:'0.00%';
+        const changeColor=w.change>=0?'#00c853':'#c0392b';
+        const vol=w.vol_ratio? w.vol_ratio.toFixed(1)+'x':'-';
+        const tags=[];
+        if(w.fi_score) tags.push(`<span class="fi-tag fi-buy">FI +${w.fi_score} ${w.fi_role||''}</span>`);
+        if(w.news_score) tags.push(`<span class="fi-tag news-tag">📰 +${w.news_score}</span>`);
+        if(w.blank_score) tags.push(`<span class="fi-tag blank-tag">Short ${w.blank_score}</span>`);
+        const tagStr=tags.join(' ');
+        const scoreClass=w.score>=60?'score-orange':'';
+        const reasons=w.reasons? w.reasons.slice(0,3).join(' • '):'';
+        return `<tr><td><span class="mono" style="color:var(--muted2)">${num}</span> <b>${w.name}</b> ${tagStr}<br><span class="mono" style="font-size:9px;color:var(--muted)">VWAP ${w.vwap?w.vwap.toFixed(2):'-'} • ATR ${w.atr_pct?w.atr_pct.toFixed(1)+'%':''} • ${w.owners? Math.round(w.owners/1000)+'k ägare':''}<br>${reasons}</span></td><td class="mono">${price}</td><td class="mono" style="color:${changeColor}">${change}</td><td class="mono">${vol}</td><td><span class="status-pill ${scoreClass}">${w.score}</span></td></tr>`;
+      }).join('');
+    }
+    document.getElementById('watchInfo').innerText=`${wl.filter(w=>w.price>0).length}/${wl.length} st • Avanza • 7 källor`;
+    
+    const rakDiv=document.getElementById('raketer');
+    const rak=s.raketer||[];
+    document.getElementById('raketCount').innerText=`${rak.length} raketer`;
+    if(rakDiv){
+      if(rak.length){
+        const chosen=document.getElementById('chosenRocket');
+        const nextEl=document.getElementById('nextEntryText');
+        if(chosen){
+          const r=rak[0];
+          let parts=[];
+          if(r.fi_score) parts.push(`FI ${r.fi_role} +${r.fi_score} ${(r.fi_amount/1000000).toFixed(1)}M`);
+          if(r.news_title) parts.push(r.news_title);
+          parts.push(`VWAP +${r.vwap?((r.price/r.vwap-1)*100).toFixed(1):'?'}% • ATR stop ${r.stop_loss?r.stop_loss.toFixed(2):'?'} • Kelly ${(r.position_size/1000).toFixed(1)}k`);
+          chosen.innerHTML=`<b>${r.name} ${r.score}/100 @ ${r.price.toFixed(2)}kr</b> • ${parts.join(' • ')}`;
+        }
+        if(nextEl) nextEl.innerText=rak[0].reasons.join(' • ');
+        
+        rakDiv.innerHTML=rak.map(r=>{
+          const fiInfo=r.fi_score? `<span class="fi-tag fi-buy">💼 FI ${r.fi_role} köper +${r.fi_score} ${(r.fi_amount/1000000).toFixed(1)}M</span>`:'';
+          const newsInfo=r.news_title? `<span class="fi-tag news-tag">📰 ${r.news_title.substring(0,35)}</span>`:'';
+          const blankInfo=r.blank_score? `<span class="fi-tag blank-tag">Short ${r.blank_score}</span>`:'';
+          return `<div style="padding:14px 0;border-bottom:1px solid var(--border)"><div style="display:flex;justify-content:space-between"><div><b>${r.name}</b> <span style="background:var(--orange);color:#fff;padding:2px 8px;border-radius:999px;font-family:JetBrains Mono,monospace;font-size:10px;font-weight:800">${r.score}/100</span> @ ${r.price.toFixed(2)}kr ${r.change? (r.change>=0?'+':'')+r.change.toFixed(1)+'%':''} • Stop ${r.stop_loss?r.stop_loss.toFixed(2):''} • Kelly ${(r.position_size/1000).toFixed(1)}k</div></div><div style="margin-top:6px">${fiInfo} ${newsInfo} ${blankInfo}</div><div class="mono" style="font-size:10px;color:var(--muted);margin-top:6px">${r.reasons.join(' • ')}</div></div>`;
+        }).join('');
+      } else {
+        rakDiv.innerHTML=`<div class="mono" style="text-align:center;padding:30px;color:var(--muted)">Inga raketer just nu<br>(normalt utanför 09-11)<br><br><span style="font-size:9px">Scannar Sinch, Embracer B, Boliden, Saab B, Volvo B, Investor B, Nibe<br>Filter: Volym >150% • Change >1.2% • Spread <0.4% • VWAP • ATR • Nyheter • FI • Blankning</span></div>`;
+        const chosen=document.getElementById('chosenRocket');
+        if(chosen) chosen.innerText='-';
+        const nextEl=document.getElementById('nextEntryText');
+        if(nextEl) nextEl.innerText='Ingen raket över 50 - väntar 7 källor';
+      }
+    }
+    
+    const newsList=document.getElementById('newsList');
+    const news=s.news||[];
+    const fi=s.fi_insider||[];
+    const blank=s.blank_positions||[];
+    document.getElementById('newsCount').innerText=news.length;
+    document.getElementById('newsTime').innerText=s.news_time||'just nu';
+    document.getElementById('fiTime').innerText=`FI ${fi.length} st • Blank ${blank.length} st`;
+    
+    if(newsList){
+      let html='';
+      if(fi.length){
+        html+=fi.map(f=>`<div style="padding:10px 0;border-bottom:1px solid var(--border);font-family:JetBrains Mono,monospace;font-size:10px"><span class="fi-tag fi-buy">FI KÖP +${f.score} ${f.role}</span> <b>${f.issuer}</b> ${f.name}<br><span style="color:var(--muted)">${f.quantity} st @ ${f.price}kr = ${(f.total/1000000).toFixed(2)}M • ${f.date}</span><br><span style="font-size:9px">${f.title}</span></div>`).join('');
+      }
+      if(blank.length){
+        html+=blank.map(b=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);font-family:JetBrains Mono,monospace;font-size:10px"><b>${b.issuer}</b> ${b.short_percent}% short • <span style="color:${b.score>0?'#2e7d32':'#c0392b'}">${b.score>0?'+'+b.score:b.score}p</span> • ${b.change>0?'↑':'↓'} ${b.change}%<br><span style="color:var(--muted);font-size:9px">${b.date}</span></div>`).join('');
+      }
+      if(news.length){
+        html+=news.slice(0,6).map(n=>`<div style="padding:8px 0;border-bottom:1px solid var(--border);font-family:JetBrains Mono,monospace;font-size:10px"><span class="fi-tag news-tag">+${n.score}</span> <b>${n.ticker}</b> ${n.title}<br><span style="color:var(--muted);font-size:9px">${n.publisher}</span></div>`).join('');
+      }
+      if(!html){
+        html=`<div class="news-box">Inga relevanta nyheter senaste 7 dagarna<br><span style="font-size:9px">Visar endast nyheter som triggar raket-filter: insider, PM, storägare, FI +25p, blankning ±10p. Inga 12 neutrala rader.</span></div>`;
+      }
+      newsList.innerHTML=html;
+    }
+    
+  }catch(e){console.error(e); document.getElementById('statusText').innerText='Fel: '+e.message;}
 }
-document.getElementById('scanBtn').onclick=()=>{const b=document.getElementById('scanBtn');b.innerText='SCANNAR ALLA 7 KÄLLOR...';fetch('/api/scan-now?force=true').then(r=>r.json()).then(()=>{load();b.innerText='STARTA SCAN ULTIMATE';});};
-document.getElementById('pingBtn').onclick=()=>{fetch('/api/ping').then(r=>r.json()).then(d=>{const b=document.getElementById('pingBtn');b.innerText='PING OK '+d.time; setTimeout(()=>b.innerText='PING lätt',2000);});};
-load(); setInterval(load,10000);
+
+document.addEventListener('DOMContentLoaded', ()=>{
+  const scanBtn=document.getElementById('scanBtn');
+  if(scanBtn) scanBtn.onclick=()=>{ scanBtn.innerText='SCANNAR ULTIMATE 7 KÄLLOR...'; scanBtn.disabled=true; fetch('/api/scan-now?force=true').then(r=>r.json()).then(()=>{ setTimeout(()=>{ loadPolaraUltimate(); scanBtn.innerText='STARTA SCAN ULTIMATE'; scanBtn.disabled=false; }, 1500); }); };
+  const pingBtn=document.getElementById('pingBtn');
+  if(pingBtn) pingBtn.onclick=()=>{ fetch('/api/ping').then(r=>r.json()).then(d=>{ pingBtn.innerText='PING OK '+d.time; setTimeout(()=>pingBtn.innerText='PING LÄTT',2000); }); };
+  const resetBtn=document.getElementById('resetBtn');
+  if(resetBtn) resetBtn.onclick=()=>{ if(confirm('Nolla P/L?')) fetch('/api/reset').then(()=>loadPolaraUltimate()); };
+});
+
+loadPolaraUltimate(); setInterval(loadPolaraUltimate, 10000);
 </script>
 </body></html>
