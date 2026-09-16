@@ -1,27 +1,57 @@
 
 from flask import Flask, jsonify, send_from_directory
 from datetime import datetime, timedelta
-import yfinance as yf, pandas as pd, json, os, math, re
+import yfinance as yf, pandas as pd, json, os, math, re, sys
 from apscheduler.schedulers.background import BackgroundScheduler
 import requests
+
+try:
+    from zoneinfo import ZoneInfo
+    STOCKHOLM = ZoneInfo('Europe/Stockholm')
+except:
+    STOCKHOLM = None
+
+def now_stockholm():
+    n = datetime.now()
+    try:
+        if STOCKHOLM:
+            return n.astimezone(STOCKHOLM)
+        return n
+    except:
+        return n
+
+def fmt_time(dt):
+    try:
+        if STOCKHOLM:
+            return dt.astimezone(STOCKHOLM).strftime('%H:%M:%S')
+        return dt.strftime('%H:%M:%S')
+    except:
+        return dt.strftime('%H:%M:%S')
+
 app=Flask(__name__, static_folder='static')
 BUDGET=10000
 CACHE_FILE="/tmp/cache_ultimate_polara_v4.json"
 PORTFOLIO_FILE="/tmp/portfolio_ultimate_polara_v4.json"
+
 def load_json(p,d):
     try:
         if os.path.exists(p):
             with open(p,"r") as f: return json.load(f)
     except: pass
     return d
+
 def save_json(p,data):
     try:
         with open(p,"w") as f: json.dump(f,data)
     except: pass
+
 portfolio=load_json(PORTFOLIO_FILE, {"start":BUDGET,"current":BUDGET,"trades":[],"total_pnl":0,"total_pnl_after":0,"total_courtage":0,"win_rate_after":0,"total":0,"wins_after":0,"daily_pnl":0})
-cache=load_json(CACHE_FILE, {"raketer":[],"watchlist_prices":[],"news":[],"fi_insider":[],"blank_positions":[],"avanza_owners":[],"time":None})
-last_scan={"budget":BUDGET,"max_daily_loss":500,"portfolio":portfolio,"raketer":cache.get("raketer",[]),"watchlist_prices":cache.get("watchlist_prices",[]),"news":cache.get("news",[]),"fi_insider":cache.get("fi_insider",[]),"blank_positions":cache.get("blank_positions",[]),"avanza_owners":cache.get("avanza_owners",[]),"news_count":len(cache.get("news",[])),"fi_count":len(cache.get("fi_insider",[])),"blank_count":len(cache.get("blank_positions",[])),"status":f"POLARA V4 ULTIMATE 7 KALLOR - cache {cache.get('time','aldrig')}","time":datetime.now().isoformat()}
+cache=load_json(CACHE_FILE, {"raketer":[],"watchlist_prices":[],"news":[],"fi_insider":[],"blank_positions":[],"avanza_owners":[],"time":None,"stockholm_time":None})
+
+last_scan={"budget":BUDGET,"max_daily_loss":500,"portfolio":portfolio,"raketer":cache.get("raketer",[]),"watchlist_prices":cache.get("watchlist_prices",[]),"news":cache.get("news",[]),"fi_insider":cache.get("fi_insider",[]),"blank_positions":cache.get("blank_positions",[]),"avanza_owners":cache.get("avanza_owners",[]),"news_count":len(cache.get("news",[])),"fi_count":len(cache.get("fi_insider",[])),"blank_count":len(cache.get("blank_positions",[])),"status":f"POLARA V4 ULTIMATE 7 KALLOR - cache {cache.get('stockholm_time', cache.get('time','aldrig'))} CEST","time":datetime.now().isoformat(),"stockholm_time":cache.get("stockholm_time","--:--:--"),"time_display":cache.get("stockholm_time","--:--:--")}
+
 WATCHLIST=[{"ticker":"SINCH.ST","name":"Sinch","fi_keywords":["Sinch"],"keywords":["sinch"],"avanza_id":5368},{"ticker":"EMBRAC-B.ST","name":"Embracer B","fi_keywords":["Embracer"],"keywords":["embracer"],"avanza_id":1015165},{"ticker":"BOL.ST","name":"Boliden","fi_keywords":["Boliden"],"keywords":["boliden"],"avanza_id":1570},{"ticker":"SAAB-B.ST","name":"Saab B","fi_keywords":["Saab"],"keywords":["saab"],"avanza_id":5411},{"ticker":"VOLV-B.ST","name":"Volvo B","fi_keywords":["Volvo"],"keywords":["volvo"],"avanza_id":853},{"ticker":"INVE-B.ST","name":"Investor B","fi_keywords":["Investor"],"keywords":["investor"],"avanza_id":1199},{"ticker":"NIBE-B.ST","name":"Nibe B","fi_keywords":["Nibe"],"keywords":["nibe"],"avanza_id":2605}]
+
 def safe_float(x,fb=0):
     try:
         if x is None: return fb
@@ -29,6 +59,7 @@ def safe_float(x,fb=0):
         if pd.isna(x): return fb
         return float(x)
     except: return fb
+
 def analyze_news(t):
     if not t: return 0
     tl=t.lower(); s=0
@@ -37,6 +68,7 @@ def analyze_news(t):
     if any(k in tl for k in ["överträffar","stark","rekord"]): s+=10
     if any(k in tl for k in ["vinstvarning","sänker","förlust"]): s-=20
     return max(-20,min(20,s))
+
 def get_news():
     all_n=[]
     for item in WATCHLIST:
@@ -53,6 +85,7 @@ def get_news():
         except: pass
     all_n.sort(key=lambda x:x["score"], reverse=True)
     return all_n[:15]
+
 def get_fi():
     fi=[]
     try:
@@ -81,6 +114,7 @@ def get_fi():
         if key not in seen:
             seen.add(key); dedup.append(f)
     return dedup[:10]
+
 def get_blank():
     blanks=[]
     for item in WATCHLIST:
@@ -97,6 +131,7 @@ def get_blank():
                     blanks.append({"issuer":item["name"],"short_percent":round(sp,2),"change":0,"score":score,"date":datetime.now().strftime('%Y-%m-%d'),"holder":"Flera","title":f"Short {sp:.2f}%"})
         except: pass
     return blanks
+
 def get_avanza():
     owners=[]
     for item in WATCHLIST:
@@ -118,6 +153,7 @@ def get_avanza():
                     owners.append({"name":item["name"],"owners":num,"prev":prev,"trend":trend,"score":score,"avanza_id":aid})
         except: pass
     return owners
+
 def get_data(ticker):
     for period in ["6mo","1y","3mo"]:
         try:
@@ -163,23 +199,27 @@ def get_data(ticker):
             return {"price":safe_float(price,0),"change":safe_float(change,0),"vol_ratio":safe_float(vol_ratio,1),"rsi":safe_float(rsi_val,50),"sma20":safe_float(sma20,price),"sma50":safe_float(sma50,price),"vwap":safe_float(vwap,price),"price_vs_vwap":safe_float((price-vwap)/vwap*100 if vwap else 0,0),"atr":safe_float(atr,price*0.02),"atr_pct":safe_float(atr/price*100 if price else 2.0,2.0),"analyst_score":analyst_score}
         except: continue
     return None
+
 def kelly(score, atr_pct):
     base=BUDGET*0.2
     sf=max(0.5,min(1.5,(score-30)/40))
     af=max(0.5,min(1.5,2.0/max(0.5,atr_pct)))
     pos=base*sf*af
     return max(BUDGET*0.1, min(BUDGET*0.35, pos))
+
 def job(force=False):
     global cache
     if not force and cache.get("time"):
         try:
             ct=datetime.fromisoformat(cache["time"])
             if datetime.now()-ct < timedelta(minutes=5):
-                last_scan["status"]=f"POLARA V4 ULTIMATE CACHE {len(cache.get('raketer',[]))} raketer + {len(cache.get('news',[]))} nyheter + {len(cache.get('fi_insider',[]))} FI + {len(cache.get('blank_positions',[]))} blank - {ct.strftime('%H:%M:%S')} - 0 anrop"
-                last_scan["raketer"]=cache.get("raketer",[]); last_scan["watchlist_prices"]=cache.get("watchlist_prices",[]); last_scan["news"]=cache.get("news",[]); last_scan["fi_insider"]=cache.get("fi_insider",[]); last_scan["blank_positions"]=cache.get("blank_positions",[]); last_scan["avanza_owners"]=cache.get("avanza_owners",[]); last_scan["news_count"]=len(cache.get("news",[])); last_scan["fi_count"]=len(cache.get("fi_insider",[])); last_scan["blank_count"]=len(cache.get("blank_positions",[])); return
+                ns=cache.get("stockholm_time") or fmt_time(ct)
+                last_scan["status"]=f"POLARA V4 ULTIMATE CACHE {len(cache.get('raketer',[]))} raketer + {len(cache.get('news',[]))} nyheter + {len(cache.get('fi_insider',[]))} FI + {len(cache.get('blank_positions',[]))} blank - {ns} CEST - 0 anrop"
+                last_scan["raketer"]=cache.get("raketer",[]); last_scan["watchlist_prices"]=cache.get("watchlist_prices",[]); last_scan["news"]=cache.get("news",[]); last_scan["fi_insider"]=cache.get("fi_insider",[]); last_scan["blank_positions"]=cache.get("blank_positions",[]); last_scan["avanza_owners"]=cache.get("avanza_owners",[]); last_scan["news_count"]=len(cache.get("news",[])); last_scan["fi_count"]=len(cache.get("fi_insider",[])); last_scan["blank_count"]=len(cache.get("blank_positions",[])); last_scan["stockholm_time"]=ns; last_scan["time_display"]=ns; return
         except: pass
     now=datetime.now()
-    print(f"POLARA V4 ULTIMATE SCAN at {now}")
+    ns=fmt_time(now)
+    print(f"POLARA V4 ULTIMATE SCAN at {now} / {ns} CEST - 7 kallor")
     news=get_news(); fi_ins=get_fi(); blank=get_blank(); avanza=get_avanza()
     news_map={}
     for n in news:
@@ -227,16 +267,18 @@ def job(force=False):
             stop=d["price"]-d["atr"]*1.5
             rak.append({**item,"score":score,"price":d["price"],"reasons":rs,"change":d["change"],"vwap":d["vwap"],"atr":d["atr"],"stop_loss":stop,"position_size":pos,"news_score":news_score,"news_title":news_title,"fi_score":fi_score,"fi_title":fi_title,"fi_role":fi_role,"fi_amount":fi_amount,"blank_score":blank_score,"blank_title":blank_title,"owners":owners})
     rak.sort(key=lambda x:x["score"], reverse=True)
-    last_scan["time"]=now.isoformat(); last_scan["raketer"]=rak; last_scan["watchlist_prices"]=watch; last_scan["news"]=news; last_scan["news_count"]=len(news); last_scan["fi_insider"]=fi_ins; last_scan["fi_count"]=len(fi_ins); last_scan["blank_positions"]=blank; last_scan["blank_count"]=len(blank); last_scan["avanza_owners"]=avanza; last_scan["portfolio"]=portfolio
-    last_scan["status"]=f"POLARA V4 ULTIMATE LIVE {len(rak)} raketer + {len(news)} nyheter + {len(fi_ins)} FI + {len(blank)} blank + {len(avanza)} ägare - {now.strftime('%H:%M:%S')} - 7 KÄLLOR - FULL POLARA DESIGN"
-    cache={"raketer":rak,"watchlist_prices":watch,"news":news,"fi_insider":fi_ins,"blank_positions":blank,"avanza_owners":avanza,"time":now.isoformat()}
+    last_scan["time"]=now.isoformat(); last_scan["stockholm_time"]=ns; last_scan["time_display"]=ns; last_scan["raketer"]=rak; last_scan["watchlist_prices"]=watch; last_scan["news"]=news; last_scan["news_count"]=len(news); last_scan["fi_insider"]=fi_ins; last_scan["fi_count"]=len(fi_ins); last_scan["blank_positions"]=blank; last_scan["blank_count"]=len(blank); last_scan["avanza_owners"]=avanza; last_scan["portfolio"]=portfolio; last_scan["news_time"]=ns
+    last_scan["status"]=f"POLARA V4 ULTIMATE LIVE {len(rak)} raketer + {len(news)} nyheter + {len(fi_ins)} FI + {len(blank)} blank + {len(avanza)} ägare - {ns} CEST - 7 KÄLLOR - FULL POLARA DESIGN"
+    cache={"raketer":rak,"watchlist_prices":watch,"news":news,"fi_insider":fi_ins,"blank_positions":blank,"avanza_owners":avanza,"time":now.isoformat(),"stockholm_time":ns}
     save_json(CACHE_FILE, cache); save_json(PORTFOLIO_FILE, portfolio)
     print(last_scan["status"])
+
 sched=BackgroundScheduler(); sched.add_job(lambda: job(force=False), 'interval', minutes=10); sched.start(); job(force=True)
+
 @app.route("/")
 def idx(): return send_from_directory('static','index.html')
 @app.route("/api/ping")
-def ping(): return jsonify({"ok":True,"time":datetime.now().strftime('%H:%M:%S'),"yahoo_calls":0,"sources":7})
+def ping(): return jsonify({"ok":True,"time":fmt_time(datetime.now()),"stockholm_time":fmt_time(datetime.now()),"yahoo_calls":0,"sources":7})
 @app.route("/api/status")
 def st(): return jsonify(last_scan)
 @app.route("/api/scan-now")
