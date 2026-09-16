@@ -1,1 +1,7 @@
-flask\nyfinance\pandas\requests\apscheduler\gunicorn\n
+flask
+yfinance
+pandas
+requests
+apscheduler
+gunicorn
+beautifulsoup4
